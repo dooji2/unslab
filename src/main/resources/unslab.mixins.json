@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.dooji.unslab.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "RecipeManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}
