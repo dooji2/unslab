@@ -52,7 +52,7 @@ public abstract class RecipeManagerMixin {
         recipe.add("key", key);
 
         JsonObject result = new JsonObject();
-        result.addProperty("id", getItemIdentifier(fullBlock));
+        result.addProperty("item", getItemIdentifier(fullBlock));
         result.addProperty("Count", 1);
         recipe.add("result", result);
 
