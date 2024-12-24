@@ -58,7 +58,7 @@ public class UnslabMapping {
 
         return switch (path) {
             case "oak_slab", "spruce_slab", "birch_slab", "jungle_slab", "acacia_slab", "dark_oak_slab",
-                 "mangrove_slab", "cherry_slab", "crimson_slab", "warped_slab" ->
+                 "mangrove_slab", "cherry_slab", "crimson_slab", "warped_slab", "bamboo_slab" ->
                     Registries.BLOCK.get(Identifier.of("minecraft", planksName));
             default -> null;
         };
