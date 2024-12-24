@@ -1,10 +1,16 @@
 package com.dooji.unslab;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.block.Block;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -12,20 +18,29 @@ import java.util.stream.Collectors;
 
 public class UnslabMapping {
     private static final Map<Block, Block> slabToBlockMap = new HashMap<>();
+    private static final Map<Block, String> customMappings = new HashMap<>();
     private static final Set<String> namespaces = Registries.BLOCK.getIds().stream()
             .map(Identifier::getNamespace)
             .collect(Collectors.toSet());
+    private static final File configFile = new File("config/Unslab/custom-mappings.json");
 
     public static void initialize() {
+        loadCustomMappings();
+
         for (Block block : Registries.BLOCK) {
             if (block instanceof SlabBlock slabBlock) {
                 Identifier slabId = Registries.BLOCK.getId(block);
 
-                Block fullBlock = mapMinecraftWoodSlabs(slabId);
+                Block fullBlock = getCustomMapping(slabBlock);
+                if (fullBlock != null) {
+                    addMapping(slabBlock, fullBlock);
+                    continue;
+                }
+
+                fullBlock = mapMinecraftWoodSlabs(slabId);
 
                 if (fullBlock == null) {
                     String baseName = removeSlabSuffix(slabId);
-
                     fullBlock = searchAllNamespacesForExactBlock(baseName);
 
                     if (fullBlock == null) {
@@ -46,6 +61,37 @@ public class UnslabMapping {
         }
 
         Unslab.LOGGER.info("[Unslab] Finished mapping slabs to blocks. Total mappings: {}", slabToBlockMap.size());
+    }
+
+    private static void loadCustomMappings() {
+        if (!configFile.exists()) {
+            return;
+        }
+
+        try (FileReader reader = new FileReader(configFile)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                Block slab = Registries.BLOCK.get(Identifier.tryParse(entry.getKey()));
+                String fullBlockId = entry.getValue().getAsString();
+
+                if (Identifier.tryParse(fullBlockId) != null) {
+                    customMappings.put(slab, fullBlockId);
+                }
+            }
+        } catch (IOException e) {
+            Unslab.LOGGER.error("[Unslab] Failed to load custom mappings from {}", configFile, e);
+        }
+    }
+
+    private static Block getCustomMapping(Block slabBlock) {
+        String customFullBlockId = customMappings.get(slabBlock);
+        if (customFullBlockId != null) {
+            Block fullBlock = Registries.BLOCK.get(Identifier.tryParse(customFullBlockId));
+            if (isValidBlock(fullBlock)) {
+                return fullBlock;
+            }
+        }
+        return null;
     }
 
     private static Block mapMinecraftWoodSlabs(Identifier slabId) {
@@ -125,8 +171,8 @@ public class UnslabMapping {
 
     private static boolean isValidBlock(Block block) {
         Identifier blockId = Registries.BLOCK.getId(block);
-
-        return !blockId.getPath().equals("air");
+        
+        return block != null && !blockId.getPath().equals("air");
     }
 
     public static Map<Block, Block> getSlabToBlockMap() {
