@@ -9,8 +9,6 @@
 #
 
 > **If a slab is mapped to the wrong block, please report it on [GitHub Issues](https://github.com/dooji2/unslab/issues).** 
-> 
-> In a future update, you will be able to manually exclude/fix mappings—although it would still be appreciated to report it so it works out of the box for everyone! It should work with most slabs, modded and vanilla.
 
 <a href="https://modrinth.com/mod/omnilib">
   <img src="https://cdn.modrinth.com/data/cached_images/c6d909828e500ee3995b6401247dcf3acd757e1f_0.webp" alt="Requires Omnilib" width="256">
