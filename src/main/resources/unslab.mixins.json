@@ -3,7 +3,8 @@
   "package": "com.dooji.unslab.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "RecipeManagerMixin"
+    "RecipeManagerMixin",
+    "ServerRecipeManagerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
