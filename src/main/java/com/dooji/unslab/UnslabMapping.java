@@ -37,7 +37,7 @@ public class UnslabMapping {
                     continue;
                 }
 
-                fullBlock = mapMinecraftWoodSlabs(slabId);
+                fullBlock = mapWoodSlabs(slabId);
 
                 if (fullBlock == null) {
                     String baseName = removeSlabSuffix(slabId);
@@ -94,20 +94,14 @@ public class UnslabMapping {
         return null;
     }
 
-    private static Block mapMinecraftWoodSlabs(Identifier slabId) {
-        if (!"minecraft".equals(slabId.getNamespace())) {
-            return null;
-        }
-
+    private static Block mapWoodSlabs(Identifier slabId) {
+        String namespace = slabId.getNamespace();
         String path = slabId.getPath();
-        String planksName = path.replace("_slab", "_planks");
+        if (!path.endsWith("_slab")) return null;
 
-        return switch (path) {
-            case "oak_slab", "spruce_slab", "birch_slab", "jungle_slab", "acacia_slab", "dark_oak_slab",
-                 "mangrove_slab", "cherry_slab", "crimson_slab", "warped_slab", "bamboo_slab" ->
-                    Registries.BLOCK.get(Identifier.of("minecraft", planksName));
-            default -> null;
-        };
+        String planksName = path.substring(0, path.length() - "_slab".length()) + "_planks";
+        Block candidate = Registries.BLOCK.get(Identifier.of(namespace, planksName));
+        return isValidBlock(candidate) ? candidate : null;
     }
 
     private static String removeSlabSuffix(Identifier slabId) {
